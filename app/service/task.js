@@ -48,7 +48,8 @@ class TaskService extends Service {
       },
       {
         $set: {
-          utime: Date.now()
+          utime: Date.now(),
+          endTime: Date.now()
         },
         $inc: {
           count: count
@@ -69,6 +70,9 @@ class TaskService extends Service {
 
     const data = await ctx.model.UcTasks.findOne({
       id
+    }, {
+      _id: 0,
+      __v: 0
     })
     return data
   }

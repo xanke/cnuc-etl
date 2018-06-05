@@ -4,13 +4,12 @@ const Service = require('egg').Service
 const ObjectId = require('mongodb').ObjectID
 
 class PiplineService extends Service {
-  async getByName(name) {
+  async getByName(nameList) {
     const { ctx } = this
 
-    console.log(name)
     const data = await ctx.model.UcCompanies.find(
       {
-        name: { $in: name }
+        name: { $in: nameList }
       },
       {
         _id: 0,
@@ -22,16 +21,11 @@ class PiplineService extends Service {
 
   async insert(list) {
     const { ctx } = this
-
-
-    console.log(list)
     // 设定查询器
     const nameList = list.map(item => item.name)
 
     // 查询数据
     const findData = await this.getByName(nameList)
-
-    console.log('find')
 
     // 查询的原始链 ID 汇总
     let oidList = []
@@ -67,7 +61,6 @@ class PiplineService extends Service {
         }
       )
     }
-    // item.utime = Date.now()
   }
 
   async finish(list) {
@@ -85,7 +78,6 @@ class PiplineService extends Service {
         }
       )
     }
-    console.log(list)
   }
 }
 

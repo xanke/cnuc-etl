@@ -54,20 +54,20 @@ class EtlService extends Service {
     const _idList = data.map(_ => _._id)
 
     for (let item of data) {
-      let oid = md5(item)
+      const { origin } = item
+      const oid = md5(item)
 
       // 过滤重复
       if (onlyList.has(oid)) continue
       onlyList.add(oid)
 
-      const { origin } = item
       let name
       if (origin === 'cyzone') {
         name = item.body.longtitle
       }
 
       if (origin === '51job') {
-        name = item.title
+        name = item.name
       }
 
       if (!name) {
@@ -86,7 +86,7 @@ class EtlService extends Service {
 
     if (list.length === 0) {
       return 0
-    } 
+    }
 
     // 通知输入管道
     await ctx.service.pipline.insert(list)

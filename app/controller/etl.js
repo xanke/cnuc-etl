@@ -23,6 +23,18 @@ class EtlController extends Controller {
     const data = await ctx.service.task.getById(id)
     ctx.body = data
   }
+
+  async update() {
+    const { ctx } = this
+    const { id } = ctx.params
+    const { action } = ctx.request.body
+
+    if (action === 'stop') {
+      await ctx.service.task.stopById(id)
+    }
+
+    ctx.body = { id }
+  }
 }
 
 module.exports = EtlController
