@@ -8,4 +8,5 @@ module.exports = app => {
   router.get('/', controller.home.index);
 
   router.get('/etl', controller.etl.start);
+  router.get('/etl/:id', controller.etl.status);
 };

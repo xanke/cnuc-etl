@@ -6,17 +6,32 @@ const Companies = require('../list/companies')
 const { md5 } = require('../utils/hash')
 
 class EtlService extends Service {
-  async start() {
+  async start(task) {
     const { ctx } = this
+    const { id } = task
 
-    const count = await this.etlStart()
+    // 启动任务
+    const count = await this.etlStart(task)
+
+    // 更新状态
+    await ctx.service.task.updateById(id, count)
+
+    console.log(id, count)
 
     if (count > 0) {
-      await this.start()
+      const status = await ctx.service.task.getStatusById(id)
+      if ( status === 1) {
+        return this.start(task)
+      } else {
+        console.log(id, 'stop')
+      }
     }
   }
 
-  async etlStart() {
+  async etlStart(task) {
+    const { id } = task
+    console.log(id, 'start')
+
     const { ctx } = this
     let count = 0
 
@@ -29,7 +44,7 @@ class EtlService extends Service {
         __v: 0,
         utime: 0
       }
-    ).limit(20)
+    ).limit(10)
 
     count = data.length
 
@@ -52,7 +67,12 @@ class EtlService extends Service {
       }
 
       if (origin === '51job') {
-        const name = item.name
+        name = item.title
+      }
+
+      if (!name) {
+        console.log(oid, 'no-name')
+        continue
       }
 
       list.push({
@@ -64,9 +84,14 @@ class EtlService extends Service {
       })
     }
 
+    if (list.length === 0) {
+      return 0
+    } 
+
     // 通知输入管道
     await ctx.service.pipline.insert(list)
 
+    // 插入完成数据标记
     await ctx.service.pipline.finish(_idList)
 
     return count
