@@ -11,5 +11,5 @@ module.exports = app => {
   router.get('/etl/:id', controller.etl.status)
   router.put('/etl/:id', controller.etl.update)
 
-  router.get('/data/:data', controller.data.list)
+  router.get('/data/:id', controller.data.list)
 }

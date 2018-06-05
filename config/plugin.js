@@ -12,5 +12,9 @@ module.exports = {
   cors: {
     enable: true,
     package: 'egg-cors'
+  },
+  graphql: {
+    enable: true,
+    package: 'egg-graphql'
   }
 }
