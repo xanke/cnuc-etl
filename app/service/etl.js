@@ -9,36 +9,67 @@ class EtlService extends Service {
   async start() {
     const { ctx } = this
 
+    const count = await this.etlStart()
+
+    if (count > 0) {
+      await this.start()
+    }
+  }
+
+  async etlStart() {
+    const { ctx } = this
+    let count = 0
+
     const data = await ctx.model.Companies.find(
       {
-        origin: 'cyzone'
+        // origin: 'cyzone',
+        etl: null
       },
       {
-        _id: 0
+        __v: 0,
+        utime: 0
       }
-    ).limit(10)
+    ).limit(20)
+
+    count = data.length
 
     const list = []
     const onlyList = new Set()
 
-    for (let item of data) {
-      let mid = md5(item)
+    const _idList = data.map(_ => _._id)
 
-      if (onlyList.has(mid)) continue
-      onlyList.add(mid)
-      
+    for (let item of data) {
+      let oid = md5(item)
+
+      // 过滤重复
+      if (onlyList.has(oid)) continue
+      onlyList.add(oid)
+
+      const { origin } = item
+      let name
+      if (origin === 'cyzone') {
+        name = item.body.longtitle
+      }
+
+      if (origin === '51job') {
+        const name = item.name
+      }
+
       list.push({
-        mid,
-        name: item.body.longtitle,
+        oid,
+        name,
         title: item.name,
         picUrl: item.picUrl,
-        body: item.body,
-        utime: Date.now()
+        origin: item
       })
     }
 
-    ctx.service.pipline.insert(list)
-    // new NEtl(Companies)
+    // 通知输入管道
+    await ctx.service.pipline.insert(list)
+
+    await ctx.service.pipline.finish(_idList)
+
+    return count
   }
 }
 

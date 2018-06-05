@@ -30,6 +30,9 @@ module.exports = app => {
     },
     url: {
       type: String
+    },
+    etl: {
+      type: Boolean
     }
   })
   return mongoose.model('Companies', CompaniesSchema, 'companies')
