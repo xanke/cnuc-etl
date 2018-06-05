@@ -1,10 +1,11 @@
 'use strict'
-
+const pkg = require('../../package.json')
 const Controller = require('egg').Controller
 
 class HomeController extends Controller {
   async index() {
-    this.ctx.body = 'hi, egg'
+    const { name, version } = pkg
+    ctx.body = { name, version }
   }
 }
 
